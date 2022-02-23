@@ -4,6 +4,10 @@ import twitterLogo from "./assets/twitter-logo.svg";
 import { ethers } from "ethers";
 import contractABI from "./utils/contractABI.json";
 
+import polygonLogo from "./assets/polygonlogo.png";
+import ethLogo from "./assets/ethlogo.png";
+import { networks } from "./utils/networks";
+
 // Constants
 const TWITTER_HANDLE = "_buildspace";
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
@@ -12,6 +16,7 @@ const tld = ".stack";
 const CONTRACT_ADDRESS = "0xfF04A57e0Ff10bA283703A5C0458b569E04bDD8B";
 
 const App = () => {
+  const [network, setNetwork] = useState("");
   const [currentAccount, setCurrentAccount] = useState("");
   // Add some state data propertie
   const [domain, setDomain] = useState("");
@@ -55,6 +60,17 @@ const App = () => {
       setCurrentAccount(account);
     } else {
       console.log("No authorized account found");
+    }
+
+    // This is the new part, we check the user's network chain ID
+    const chainId = await ethereum.request({ method: "eth_chainId" });
+    setNetwork(networks[chainId]);
+
+    ethereum.on("chainChanged", handleChainChanged);
+
+    // Reload the page when they change networks
+    function handleChainChanged(_chainId) {
+      window.location.reload();
     }
   };
 
@@ -174,8 +190,25 @@ const App = () => {
         <div className="header-container">
           <header>
             <div className="left">
-              <p className="title">🐱‍👤 Stack Name Service</p>
-              <p className="subtitle">Your guide to tech stacks on the web!</p>
+              <p className="title">🐱‍👤 Ninja Name Service</p>
+              <p className="subtitle">Your immortal API on the blockchain!</p>
+            </div>
+            {/* Display a logo and wallet connection status*/}
+            <div className="right">
+              <img
+                alt="Network logo"
+                className="logo"
+                src={network.includes("Polygon") ? polygonLogo : ethLogo}
+              />
+              {currentAccount ? (
+                <p>
+                  {" "}
+                  Wallet: {currentAccount.slice(0, 6)}...
+                  {currentAccount.slice(-4)}{" "}
+                </p>
+              ) : (
+                <p> Not connected </p>
+              )}
             </div>
           </header>
         </div>
